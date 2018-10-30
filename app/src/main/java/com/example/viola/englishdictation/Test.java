@@ -2,6 +2,7 @@ package com.example.viola.englishdictation;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -26,6 +27,8 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
@@ -34,10 +37,12 @@ import android.speech.tts.TextToSpeech;
 public class Test extends AppCompatActivity {
     String wordssum;
     int wordsum;
+    int countnum = 1;
+    int metritis=0;
     String result1;
     int arrayposition;
     int arrayposition2;
-    String chapter = "Starter";
+    String chapter = "1";
     TextToSpeech t1;
     int counter=1;
     int counter2=0;
@@ -53,6 +58,9 @@ public class Test extends AppCompatActivity {
     String[] mistarray5 = {"1005"};
     String[] mistarray6 = {"1006"};
     String[] mistarray7 = {"1007"};
+    String[] englishanswears;
+    String[] greekanswears;
+    Boolean[] correctanswears;
 
     public static final String PREFS_NAME = "MyPrefsFile";
     private static final String PREF_USERID = "UserID";
@@ -65,6 +73,8 @@ public class Test extends AppCompatActivity {
         if (testcoo!=null&&!testcoo.equals("NoUser")&&!testcoo.equals("No Connected Service Found")&&!testcoo.equals("")) {
             UserID=Integer.parseInt(testcoo);
             if (UserID>0){
+                Toast toast = Toast.makeText(getApplicationContext(), "it's in",Toast.LENGTH_LONG);
+                toast.show();
                 setContentView(R.layout.test);
                 try {
                     wordssum = new AsyncTaskSum().execute().get();
@@ -102,7 +112,7 @@ public class Test extends AppCompatActivity {
         protected String doInBackground(String... urls) {
             URL url;
             try {
-                url = new URL("http://192.168.1.35/english_dictation/showwordssum.php");
+                url = new URL("http://u779583388.hostingerapp.com/EnglishDictation/showwordssum.php");
             } catch (MalformedURLException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
@@ -191,7 +201,7 @@ public class Test extends AppCompatActivity {
         protected String[] doInBackground(String... urls) {
             URL url;
             try {
-                url = new URL("http://192.168.1.35/english_dictation/showwords.php?chapter="+chapter+"");
+                url = new URL("http://u779583388.hostingerapp.com/EnglishDictation/showwords.php?chapter="+chapter+"");
             } catch (MalformedURLException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
@@ -280,43 +290,114 @@ public class Test extends AppCompatActivity {
                 toast.show();
             }
             else {
+                englishanswears = new String[wordsum];
+                greekanswears = new String[wordsum];
+                correctanswears = new Boolean[wordsum];
                 final String text = result[counter];
                 speak(text);
                 ImageView nextword=findViewById(R.id.nextword);
                 nextword.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        if (counter<result.length){
-                            counter=counter+5;
-                            if (counter<result.length-4){
-                                final String text = result[counter];
-                                speak(text);
-                            }
+                        TextView countnumber = findViewById(R.id.wordnumber);
+                        try {
                             EditText wordanswearEdtext = findViewById(R.id.englishword);
                             EditText translationanswearEdtext = findViewById(R.id.translation);
-                            String word = result[counter-5];
-                            String translation = result[counter-4];
+                            String word = result[counter];
+                            String translation = result[counter+1];
                             String wordanswear = wordanswearEdtext.getText().toString();
+                            if (wordanswear==null || wordanswear.equals("") ||wordanswear.equals(" ")){
+                                englishanswears[metritis] = "no answear";
+                            }else {
+                                englishanswears[metritis] = wordanswear;
+                            }
                             String translationanswear = translationanswearEdtext.getText().toString();
+                            if (translationanswear==null || translationanswear.equals("") ||translationanswear.equals(" ")){
+                                greekanswears[metritis] = "no answear";
+                            }else {
+                                greekanswears[metritis] = translationanswear;
+                            }
                             //Toast.makeText(getApplicationContext(),"Correct :"+word +" "+translation +" Answered :"+wordanswear +" "+translationanswear,Toast.LENGTH_LONG).show();
                             wordanswearEdtext.getText().clear();
                             translationanswearEdtext.getText().clear();
                             boolean isCorrect;
-                            if (word.equals(wordanswear) && translation.equals(translationanswear)){
+                            if (word.equals(wordanswear.trim()) && IsTranslationCorrect(translation,translationanswear)){
                                 isCorrect= true;
-                                Toast toast = Toast.makeText(getApplicationContext(),isCorrect+" ",Toast.LENGTH_LONG);
-                                toast.show();
                             } else {
                                 isCorrect= false;
-                                Toast toast = Toast.makeText(getApplicationContext(),isCorrect+" ",Toast.LENGTH_LONG);
-                                toast.show();
                             }
-                            urlUpdate="http://192.168.1.35/english_dictation/updateword.php?wordentered="+wordanswear+"&translationentered="+translationanswear+"&correct="+isCorrect+"&wordid="+result[counter-6]+"&userid="+UserID+"";
+                            correctanswears[metritis] = isCorrect;
+                            metritis++;
+                            urlUpdate="http://u779583388.hostingerapp.com/EnglishDictation/updateword.php?wordentered="+wordanswear+"&translationentered="+translationanswear+"&correct="+isCorrect+"&wordid="+result[counter-1]+"&userid="+UserID+"";
                             new AsyncTaskUpdate().execute();
+                        } catch (Exception e) {
+                            Log.i("aaaaaaaaaaaaaaaaaa", e+"");
+                        }
+                        if (counter<result.length-4){
+                            countnum++;
+                            countnumber.setText(countnum +"/" + wordsum);
+                            counter=counter+5;
+                            final String text = result[counter];
+                            speak(text);
                         } else {
                             Toast toast = Toast.makeText(getApplicationContext(),"the end",Toast.LENGTH_LONG);
                             toast.show();
-                            new AsyncTaskResults().execute();
+                            setContentView(R.layout.results);
+                            int score=0;
+                            for (int i=0;i<correctanswears.length;i++){
+                                if (correctanswears[i]){
+                                    score=score+1;
+                                }
+                            }
+                            TextView scoreview = findViewById(R.id.scoretitle);
+                            double percentage = (double)score / (double)wordsum ;
+                            percentage = Math.round(percentage * 100.0) / 100.0;
+                            //+ "=" + (percentage *100) + "%"
+                            scoreview.setText("Your score is "+score + "/" + wordsum );
+
+                            for (int y=0;y<englishanswears.length;y++){
+                                LinearLayout parent = new LinearLayout(Test.this);
+                                parent.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+                                parent.setOrientation(LinearLayout.HORIZONTAL);
+
+                                final TextView englishword = new TextView(Test.this);
+                                englishword.setText(englishanswears[y]);
+                                englishword.setTextSize(15);
+                                englishword.setLayoutParams(new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT));
+                                englishword.setHeight(400);
+
+                                final TextView equals = new TextView(Test.this);
+                                equals.setText("=");
+                                equals.setTextSize(15);
+                                equals.setLayoutParams(new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT));
+                                equals.setHeight(400);
+
+                                final TextView greekword = new TextView(Test.this);
+                                greekword.setText(greekanswears[y]);
+                                greekword.setTextSize(15);
+                                greekword.setLayoutParams(new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT));
+                                greekword.setHeight(400);
+
+                                if (correctanswears[y]){
+                                    englishword.setTextColor(Color.GREEN);
+                                    equals.setTextColor(Color.GREEN);
+                                    greekword.setTextColor(Color.GREEN);
+                                } else {
+                                    englishword.setTextColor(Color.RED);
+                                    equals.setTextColor(Color.RED);
+                                    greekword.setTextColor(Color.RED);
+                                }
+
+                                LinearLayout layout= findViewById(R.id.linearanswears);
+                                parent.addView(englishword);
+                                parent.addView(equals);
+                                parent.addView(greekword);
+                                layout.addView(parent);
+                            }
+
+
+
+                            //new AsyncTaskResults().execute();
                         }
 
                     }
@@ -345,6 +426,23 @@ public class Test extends AppCompatActivity {
                 t1.speak(toSpeak, TextToSpeech.QUEUE_FLUSH, null);
             }
         });
+    }
+
+    public boolean IsTranslationCorrect( String translation, String translationanswear){
+        translationanswear = translationanswear.trim();
+        if (translation.contains(",")){
+            String[] possibleTranslations = translation.split(",");
+            for (int i=0;i<possibleTranslations.length;i++){
+                if (translationanswear.equals(possibleTranslations[i].trim())){
+                    return true;
+                }
+            }
+        } else {
+            if (translation.equals(translationanswear)){
+                return true;
+            }
+        }
+        return false;
     }
 
     class AsyncTaskUpdate extends AsyncTask<String, Void, String> {
@@ -449,7 +547,7 @@ public class Test extends AppCompatActivity {
         protected String[] doInBackground(String... urls) {
             URL url;
             try {
-                url = new URL("http://192.168.1.35/english_dictation/showcorrectanswear.php?userid="+UserID+"");
+                url = new URL("http://192.168.1.45/english_dictation/showcorrectanswear.php?userid="+UserID+"");
             } catch (MalformedURLException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();

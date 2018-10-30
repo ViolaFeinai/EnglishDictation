@@ -12,11 +12,31 @@
         android:layout_height="wrap_content">
 
         <TextView
+            android:id="@+id/start"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Test Starter"
+            android:textSize="30sp"
+            android:layout_alignParentLeft="true"
+            android:paddingBottom="20dp"/>
+
+        <Button
+            android:id="@+id/button1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Go"
+            android:textSize="25sp"
+            android:layout_alignParentRight="true"
+            android:onClick="goTest"
+            android:paddingBottom="20dp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Test 1"
             android:textSize="30dp"
-            android:layout_alignParentLeft="true"/>
+            android:layout_alignParentLeft="true"
+            android:layout_below="@id/start"/>
 
         <Button
             android:layout_width="wrap_content"
@@ -24,10 +44,10 @@
             android:text="Go"
             android:textSize="25dp"
             android:layout_alignParentRight="true"
-            android:onClick="goTest"/>
+            android:onClick="goTest"
+            android:layout_below="@id/button1"/>
 
     </RelativeLayout>
-
 
 
 </LinearLayout>

@@ -45,7 +45,7 @@ public class Login extends AppCompatActivity {
         password = mEditPassword.getText().toString();
         Toast toast = Toast.makeText(getApplicationContext(), "dd"+username+""+password,Toast.LENGTH_LONG);
         toast.show();
-        loginUrl = "http://192.168.1.79/english_dictation/login.php?username="+username+"&password="+password+"";
+        loginUrl = "http://u779583388.hostingerapp.com/EnglishDictation/login.php?username="+username+"&password="+password+"";
         new AKLogin().execute(loginUrl);
     }
 

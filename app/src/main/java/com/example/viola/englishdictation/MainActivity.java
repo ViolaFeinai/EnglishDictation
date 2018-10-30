@@ -30,9 +30,7 @@ public class MainActivity extends AppCompatActivity {
             Log.i("new111111111", testcoo);
             UserID= testcoo;
             setContentView(R.layout.content_main);
-            //ImageView imageview = findViewById(R.id.menu);
-            //imageview.setImageDrawable(getResources().getDrawable(R.drawable.menufilled));
-        }
+       }
         else {
             Intent intent = new Intent(this, Login.class);
             startActivity(intent);
@@ -40,7 +38,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void goTest(View view){
+        Toast toast = Toast.makeText(getApplicationContext(), "goTest worked" +UserID,Toast.LENGTH_LONG);
+        toast.show();
         Intent intent = new Intent(this, Test.class);
         startActivity(intent);
     }
+
+
 }
